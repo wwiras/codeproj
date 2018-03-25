@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+    <div class="page-header">
+      <h1>Removing Post</h1>
+    </div>
+
+    <div>
+      <form method="post" class="form-horizontal">
+        {% csrf_token %}
+        {% if post %}
+          <p>Are you sure you want to remove Post : {{ post.name }} ?</p>
+          <p>Warning ! This record/info will be removed for good.</p>
+          <br>
+          <button type="submit" name="submit_yes" value="Yes" class="btn btn-primary">Yes</button>
+          <a href="{% url 'post_detail' post.pk %}" class="btn btn-primary">No</a>
+        {% else %}
+          <p>Sorry! This Post is not available. It might be that this record has been removed or not created yet in this system</p>
+          <br>
+          <a href="{% url 'post_home' %}" class="btn btn-primary">Back</a>
+        {% endif %}
+          
+      </form>
+    </div>
+
+{% endblock %}

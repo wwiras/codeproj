@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+  <div class="page-header">
+    <h2>Registering New Letter</h2>
+  </div>
+    {% crispy form %}
+  <br>
+{% endblock %}

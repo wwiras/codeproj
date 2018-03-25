@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block head_title %}{% trans "Pastbin - Clone" %}{% endblock %}
+
+{% block content %}
+<legend>Post Detail</legend>
+<div class="table-responsive">
+  <table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Detail</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% if post %}
+        <tr>
+          <td>{% trans "Name" %}</td>  
+          <td>{{ post.name }}</td>  
+        </tr>
+        <tr>
+          <td>{% trans "Content" %}</td>  
+          {% if post.content %}  
+            <td>{{ post.content }}</td>
+          {% else %}
+            <td>N/A</td>
+          {% endif %}  
+        </tr>
+        <tr>
+          <td>{% trans "Post Date" %}</td>  
+          <td>{{ post.date_exp|date:"d - M - Y" }}</td>  
+        </tr>
+
+      {% else %}
+      <tr>
+        <td colspan="2" align="center">No Information available for this post </td>
+      <tr>
+      {% endif %}
+      </tbody>
+  </table>
+</div>
+
+<p class="text-center">
+      <a href="{% url 'post_edit' post.pk %}" class="btn btn-primary" >Edit Post</a>
+      <a href="{% url 'post_remove' post.pk %}" class="btn btn-primary" >Remove Post</a>
+</p>
+{% endblock %}
