@@ -2,14 +2,14 @@
 from django.urls import reverse_lazy
 from django.core import serializers
 from django.views.generic import CreateView, UpdateView, DeleteView, TemplateView, ListView, DetailView
-from post.models import Post
+from post.models import Post, PostLog
 from .forms import PostForm
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect, Http404, JsonResponse, HttpResponse
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from django.db.models import Count, Sum, Q, Case, Value, When, IntegerField
-from datetime import date
+from datetime import date,datetime
 # from django.db.models import CharField, Case, Value, When, Count
 import re, json
 
@@ -92,7 +92,6 @@ def post_edit(request,pk):
             editpost = form.save(commit=False)
             editpost.save()
             messages.success(request, "Post : " + str(editpost.name) + " has been updated! ")
-            # return redirect(reverse_lazy('letter_detail',kwargs={'pk': editletter.pk }))
             return redirect(reverse_lazy('post_home'))
     else:
         editpost.date_exp = date.strftime(editpost.date_exp, "%d-%m-%Y")
@@ -101,6 +100,14 @@ def post_edit(request,pk):
 
 def post_detail(request,pk):
     post = get_object_or_404(Post, pk=pk)
+    # Logs each unique url and past it to the post detail page
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ipaddress = x_forwarded_for.split(',')[-1].strip()
+    else:
+        ipaddress = request.META.get('REMOTE_ADDR')
+    browser_agent = request.META.get('HTTP_USER_AGENT')
+    PostLog.objects.create(ipaddr=ipaddress,browser_agent=browser_agent,date_visit=datetime.now(),post=post)
     return render(request, 'post/post_detail.html', {'post': post})
 
 

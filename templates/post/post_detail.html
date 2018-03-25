@@ -30,7 +30,7 @@
         </tr>
         <tr>
           <td>{% trans "Post Date" %}</td>  
-          <td>{{ post.date_exp|date:"d - M - Y" }}</td>  
+          <td>{{ post.date_exp|date:"d-M-Y" }}</td>  
         </tr>
 
       {% else %}
@@ -46,4 +46,32 @@
       <a href="{% url 'post_edit' post.pk %}" class="btn btn-primary" >Edit Post</a>
       <a href="{% url 'post_remove' post.pk %}" class="btn btn-primary" >Remove Post</a>
 </p>
+
+<div class="table-responsive">
+  <h4 align="center">Post Logs / Activities</h4>
+  <table class="table">
+      <thead>
+        <tr>
+          <th>IP</th>
+          <th>Browser Agent</th>
+          <th>Date / Time</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% if post.postlog_set.count > 0 %}
+        {% for plog in post.postlog_set.all|dictsortreversed:"date_visit" %}
+        <tr>
+          <td>{{ plog.ipaddr }}</td>  
+          <td>{{ plog.browser_agent }}</td>  
+          <td>{{ plog.date_visit|date:"d-M-Y H:i:s a" }}</td>
+        </tr>
+        {% endfor %}
+      {% else %}
+      <tr>
+        <td colspan="3" align="center">No Log Information available for this post </td>
+      <tr>
+      {% endif %}
+      </tbody>
+  </table>
+</div>
 {% endblock %}
