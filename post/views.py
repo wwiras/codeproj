@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect, Http404, JsonResponse, HttpRespons
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from django.db.models import Count, Sum, Q, Case, Value, When, IntegerField
 from datetime import date,datetime
-# from django.db.models import CharField, Case, Value, When, Count
+from django.utils import timezone
 import re, json
 
 class HomeView(TemplateView):
@@ -100,17 +100,22 @@ def post_edit(request,pk):
 
 def post_detail(request,pk):
     post = get_object_or_404(Post, pk=pk)
-    # Logs each unique url and past it to the post detail page
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
+
+    #Check if post is expired or not
+    if post.date_exp.date() >= date.today():
+      # Logs each unique url and past it to the post detail page
+      x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+      if x_forwarded_for:
         ipaddress = x_forwarded_for.split(',')[-1].strip()
-    else:
+      else:
         ipaddress = request.META.get('REMOTE_ADDR')
-    browser_agent = request.META.get('HTTP_USER_AGENT')
-    PostLog.objects.create(ipaddr=ipaddress,browser_agent=browser_agent,date_visit=datetime.now(),post=post)
-    return render(request, 'post/post_detail.html', {'post': post})
-
-
+      browser_agent = request.META.get('HTTP_USER_AGENT')
+      PostLog.objects.create(ipaddr=ipaddress,browser_agent=browser_agent,date_visit=datetime.now(),post=post)
+      return render(request, 'post/post_detail.html', {'post': post})
+    else:
+      messages.error(request, "Post : " + str(post.name) + " has already expired! ")
+      return redirect(reverse_lazy('post_home'))
+    
 def post_remove(request,pk):
     post = get_object_or_404(Post, pk=pk)
     if request.method == "POST":
@@ -120,3 +125,11 @@ def post_remove(request,pk):
             return redirect(reverse_lazy('post_home'))
     return render(request, 'post/post_confirm_delete.html', {'post': post, 'pk':pk})
 
+
+
+    # expirydate = date.strftime(post.date_exp, "%d-%m-%Y")
+    # currentdate = date.strftime(date.today(), "%d-%m-%Y")
+    # print('expirydate='+str(expirydate))
+    # print('currentdate='+str(currentdate))
+    # print('post.date_exp.date()='+str(post.date_exp.date()))
+    # print('post.date_exp='+str(post.date_exp))
